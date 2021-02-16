@@ -6,7 +6,7 @@ function getProp(key: string) {
 }
 
 const WEBHOOK_ID = 'e9b36487-e723-4ed3-b78d-45d72f1f599d'
-const WEBHOOK_SEACRET = getProp('WEBHOOK_SEACRET')
+const WEBHOOK_SECRET = getProp('WEBHOOK_SECRET')
 
 function doPost(e: GoogleAppsScript.Events.DoPost) {
   const params: AlertRequest = JSON.parse(e.postData.contents)
@@ -19,7 +19,7 @@ function sendMessage(message: string) {
   const signature = Utilities.computeHmacSignature(
     Utilities.MacAlgorithm.HMAC_SHA_1,
     message,
-    WEBHOOK_SEACRET,
+    WEBHOOK_SECRET,
     Utilities.Charset.UTF_8
   )
   const sign = signature.reduce((str, ch) => {
