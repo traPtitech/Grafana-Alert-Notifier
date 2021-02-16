@@ -1,10 +1,11 @@
 import { AlertRequest } from './types'
 
 function getProp(key: string) {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return PropertiesService.getScriptProperties().getProperty(key)!
 }
 
-const WEBHOOK_ID = 'ea8c0b3e-fdee-43ba-9c77-e20ad9b3c2d7'
+const WEBHOOK_ID = 'e9b36487-e723-4ed3-b78d-45d72f1f599d'
 const WEBHOOK_SEACRET = getProp('WEBHOOK_SEACRET')
 
 function doPost(e: GoogleAppsScript.Events.DoPost) {
