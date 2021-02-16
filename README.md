@@ -4,4 +4,4 @@ Send webhook to traQ when alert received from Grafana
 
 ## Props
 
-`WEBHOOK_SEACRET`: traQ webhook seacret
+`WEBHOOK_SECRET`: traQ webhook secret
