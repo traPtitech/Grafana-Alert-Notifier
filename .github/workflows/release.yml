@@ -28,3 +28,5 @@ jobs:
         run: clasp push --force
       - name: deploy
         run: clasp deploy --description "${TAG_NAME}"
+      - name: deploy-latest
+        run: clasp deploy --description "latest"
