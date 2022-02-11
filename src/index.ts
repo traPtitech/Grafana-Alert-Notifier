@@ -16,7 +16,9 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
 }
 
 function alertToMessage(alert: Alert) {
-  const title = `## ${alert.labels.alertname ?? 'Blank alert name'}`
+  const title = `## [${alert.status}] ${
+    alert.labels.alertname ?? 'Blank alert name'
+  }`
   const message = alert.annotations.message ?? 'Blank message'
   const link =
     alert.dashboardURL !== '' ? `[dashboard link](${alert.dashboardURL})` : ''
