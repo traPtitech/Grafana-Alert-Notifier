@@ -1,4 +1,4 @@
-import { AlertRequest } from './types'
+import { Alert, AlertRequest } from './types'
 
 function getProp(key: string) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -9,10 +9,23 @@ const WEBHOOK_ID = 'e9b36487-e723-4ed3-b78d-45d72f1f599d'
 const WEBHOOK_SECRET = getProp('WEBHOOK_SECRET')
 
 function doPost(e: GoogleAppsScript.Events.DoPost) {
-  const params: AlertRequest = JSON.parse(e.postData.contents)
-  const description = params.message ? `${params.message}\n` : `\n`
-  const text = `## [${params.title}](${params.ruleUrl})\n` + `${description}`
+  const req: AlertRequest = JSON.parse(e.postData.contents)
+  const alertMessages = req.alerts.map(alertToMessage)
+  const text = alertMessages.join('\n\n')
   sendMessage(text)
+}
+
+function alertToMessage(alert: Alert) {
+  const title = `## ${alert.labels.alertname ?? 'Blank alert name'}`
+  const message = alert.annotations.message ?? 'Blank message'
+  const link =
+    alert.dashboardURL !== '' ? `[dashboard link](${alert.dashboardURL})` : ''
+
+  return `
+${title}
+${message}
+${link}
+`.trim()
 }
 
 function sendMessage(message: string) {

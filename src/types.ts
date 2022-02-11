@@ -1,20 +1,14 @@
+/**
+ * @see https://grafana.com/docs/grafana/latest/alerting/unified-alerting/contact-points/#webhook
+ */
 export interface AlertRequest {
-  dashbordId: number
-  evalMatches: EvalMatches[]
-  imageUrl: string
-  message: string
-  orgId: number
-  manelId: number
-  ruleId: number
-  ruleName: string
-  ruleUrl: string
-  state: string
-  tags: unknown
-  title: string
+  status: string
+  alerts: Alert[]
 }
 
-interface EvalMatches {
-  value: number
-  metric: string
-  tags: unknown
+export interface Alert {
+  status: string
+  labels: Record<string, string | undefined>
+  annotations: Record<string, string | undefined>
+  dashboardURL: string
 }
