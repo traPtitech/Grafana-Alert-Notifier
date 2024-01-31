@@ -15,8 +15,15 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
   sendMessage(text)
 }
 
+function getStatusEmoji(status: string) {
+  if (status === 'firing') return '🔥'
+  if (status === 'resolved') return '✅'
+  return ''
+}
+
 function alertToMessage(alert: Alert) {
-  const title = `## [${alert.status}] ${
+  const emoji = getStatusEmoji(alert.status)
+  const title = `## [${emoji}${alert.status}] ${
     alert.labels.alertname ?? 'Blank alert name'
   }`
   const message = alert.annotations.message ?? 'Blank message'
