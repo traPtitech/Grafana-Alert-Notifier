@@ -12,7 +12,7 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
   const req: AlertRequest = JSON.parse(e.postData.contents)
   const alertMessages = req.alerts.map(alertToMessage)
   const text = alertMessages.join('\n\n')
-  const channelID = e.parameter.channelID
+  const channelID = e.parameter.channelID as string | undefined
   sendMessage(text, channelID)
 }
 
@@ -38,16 +38,19 @@ ${link}
 `.trim()
 }
 
-function sendMessage(message: string, channelID: string) {
+function sendMessage(message: string, channelID: string | undefined) {
   const sign = computeSignature(message)
+  const headers: Record<string, string> = {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'X-TRAQ-Signature': sign
+  }
+  if (channelID !== undefined) {
+    headers['X-TRAQ-Channel-Id'] = channelID
+  }
   UrlFetchApp.fetch(`https://q.trap.jp/api/v3/webhooks/${WEBHOOK_ID}`, {
     method: 'post',
     contentType: 'text/plain; charset=utf-8',
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'X-TRAQ-Signature': sign,
-      'X-TRAQ-Channel-Id': channelID
-    },
+    headers: headers,
     payload: message
   })
 }
