@@ -12,7 +12,15 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
   const req: AlertRequest = JSON.parse(e.postData.contents)
   const alertMessages = req.alerts.map(alertToMessage)
   const text = alertMessages.join('\n\n')
-  sendMessage(text)
+  const alertType = e.parameter.alertType
+  switch (alertType) {
+    case 'services':
+      sendServiceStatusMessage(text)
+      break
+    case 'logs':
+      sendErrorLogMessage(text)
+      break
+  }
 }
 
 function getStatusEmoji(status: string) {
@@ -37,17 +45,8 @@ ${link}
 `.trim()
 }
 
-function sendMessage(message: string) {
-  const signature = Utilities.computeHmacSignature(
-    Utilities.MacAlgorithm.HMAC_SHA_1,
-    message,
-    WEBHOOK_SECRET,
-    Utilities.Charset.UTF_8
-  )
-  const sign = signature.reduce((str, ch) => {
-    const chr = (ch < 0 ? ch + 256 : ch).toString(16)
-    return str + (chr.length === 1 ? '0' : '') + chr
-  }, '')
+function sendServiceStatusMessage(message: string) {
+  const sign = computeSignature(message)
   UrlFetchApp.fetch(`https://q.trap.jp/api/v3/webhooks/${WEBHOOK_ID}`, {
     method: 'post',
     contentType: 'text/plain; charset=utf-8',
@@ -57,4 +56,34 @@ function sendMessage(message: string) {
     },
     payload: message
   })
+}
+
+// #team/SysAd/logs/error
+const ERROR_LOG_CHANNEL_ID = 'cec4f852-817f-4fab-91d7-a668712b9ab6'
+
+function sendErrorLogMessage(message: string) {
+  const sign = computeSignature(message)
+  UrlFetchApp.fetch(`https://q.trap.jp/api/v3/webhooks/${WEBHOOK_ID}`, {
+    method: 'post',
+    contentType: 'text/plain; charset=utf-8',
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-TRAQ-Signature': sign,
+      'X-TRAQ-Channel-Id': ERROR_LOG_CHANNEL_ID
+    },
+    payload: message
+  })
+}
+
+function computeSignature(message: string) {
+  const signature = Utilities.computeHmacSignature(
+    Utilities.MacAlgorithm.HMAC_SHA_1,
+    message,
+    WEBHOOK_SECRET,
+    Utilities.Charset.UTF_8
+  )
+  return signature.reduce((str, ch) => {
+    const chr = (ch < 0 ? ch + 256 : ch).toString(16)
+    return str + (chr.length === 1 ? '0' : '') + chr
+  }, '')
 }
