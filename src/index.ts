@@ -12,15 +12,8 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
   const req: AlertRequest = JSON.parse(e.postData.contents)
   const alertMessages = req.alerts.map(alertToMessage)
   const text = alertMessages.join('\n\n')
-  const alertType = e.parameter.alertType
-  switch (alertType) {
-    case 'services':
-      sendServiceStatusMessage(text)
-      break
-    case 'logs':
-      sendErrorLogMessage(text)
-      break
-  }
+  const channelID = e.parameter.channelID
+  sendMessage(text, channelID)
 }
 
 function getStatusEmoji(status: string) {
@@ -45,23 +38,7 @@ ${link}
 `.trim()
 }
 
-function sendServiceStatusMessage(message: string) {
-  const sign = computeSignature(message)
-  UrlFetchApp.fetch(`https://q.trap.jp/api/v3/webhooks/${WEBHOOK_ID}`, {
-    method: 'post',
-    contentType: 'text/plain; charset=utf-8',
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'X-TRAQ-Signature': sign
-    },
-    payload: message
-  })
-}
-
-// #team/SysAd/logs/error
-const ERROR_LOG_CHANNEL_ID = 'cec4f852-817f-4fab-91d7-a668712b9ab6'
-
-function sendErrorLogMessage(message: string) {
+function sendMessage(message: string, channelID: string) {
   const sign = computeSignature(message)
   UrlFetchApp.fetch(`https://q.trap.jp/api/v3/webhooks/${WEBHOOK_ID}`, {
     method: 'post',
@@ -69,7 +46,7 @@ function sendErrorLogMessage(message: string) {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'X-TRAQ-Signature': sign,
-      'X-TRAQ-Channel-Id': ERROR_LOG_CHANNEL_ID
+      'X-TRAQ-Channel-Id': channelID
     },
     payload: message
   })
